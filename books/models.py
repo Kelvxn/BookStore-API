@@ -30,7 +30,6 @@ class Publisher(models.Model):
 
     def get_absolute_url(self):
         return reverse("publisher-detail", kwargs={"slug": self.slug})
-    
 
 
 class Author(models.Model):
@@ -38,13 +37,13 @@ class Author(models.Model):
     first_name = models.CharField(("First Name"), max_length=30)
     last_name = models.CharField(("Last Name"), max_length=30)
     slug = models.SlugField(max_length=100)
-    email = models.EmailField(("Email Address"), unique=True)
-    about = models.TextField()
+    email = models.EmailField(("Email address"), unique=True)
+    about = models.TextField(max_length=250)
 
     def __str__(self):
         return f"{self.first_name}"
 
-    def save(self,*args, **kwargs):
+    def save(self, *args, **kwargs):
         if not self.slug:
             full_name = self.get_full_name()
             self.slug = slugify(full_name)
@@ -52,36 +51,40 @@ class Author(models.Model):
 
     def get_absolute_url(self):
         return reverse("author-detail", kwargs={"pk": self.pk})
-    
+
     def get_full_name(self):
-        return f"{self.first_name} {self.last_name}"    
+        return f"{self.first_name} {self.last_name}"
 
 
 class Book(models.Model):
 
-    id = models.UUIDField(primary_key=True ,default=uuid4)
-    title = models.CharField(max_length=50, unique=True)
+    id = models.UUIDField(primary_key=True, default=uuid4)
+    title = models.CharField(
+        max_length=50,
+        unique=True,
+        error_messages={"unique": "A book with this title already exists."}
+    )
     description = models.TextField()
-    authors = models.ManyToManyField(Author, related_name='authors')
-    publishers = models.ForeignKey(Publisher, related_name="books",  on_delete=models.CASCADE)
+    authors = models.ManyToManyField(Author, related_name="authors")
+    publisher = models.ForeignKey(
+        Publisher, related_name="books_published", on_delete=models.CASCADE, null=True, blank=True
+    )
     date_published = models.DateField()
     isbn = models.CharField(
         ("ISBN"),
         max_length=13,
         unique=True,
         error_messages={
-            'unique': 'A book with this ISBN already exists',
+            "unique": "A book with this ISBN already exists",
         }
     )
     page_count = models.PositiveIntegerField(("Number of pages"))
-    
 
     class Meta:
-        ordering = ('-date_published',)
+        ordering = ("-date_published",)
 
     def __str__(self):
         return self.title
 
     def get_absolute_url(self):
         return reverse("book-detail", kwargs={"pk": self.id})
-    

@@ -57,19 +57,20 @@ class BookDetail(APIView):
 
     def post(self, request, pk, format=None):
         book = self.get_object(pk)
-        if request.user not in book.bookmark.all():
-            book.bookmark.add(request.user)
+        if request.user not in book.bookmark.all():  # type: ignore
+            book.bookmark.add(request.user) # type: ignore
+            return Response({"Success": "This book has been added to your bookmark"})
         else:
-            book.bookmark.remove(request.user)
-        return Response(
-            {"bookmarked": "Success"},
-        )
+            book.bookmark.remove(request.user) # type: ignore
+            return Response(
+                {"Success": "This book has been removed from your bookmark"}
+            )
 
 
 class BookCreate(CreateAPIView):
 
     serializer_class = BookSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = (AllowAny,)
 
 
 class BookUpdate(RetrieveUpdateAPIView, GenericAPIView):

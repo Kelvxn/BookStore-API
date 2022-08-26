@@ -24,7 +24,4 @@ class MyUser(AbstractUser):
 
     def get_absolute_url(self):
         return reverse("user_detail", kwargs={"slug": self.slug})
-
-    def get_bookmark_count(self):
-        return len(self.bookmark)
     

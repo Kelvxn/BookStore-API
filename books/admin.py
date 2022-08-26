@@ -22,6 +22,6 @@ class AuthorAdmin(admin.ModelAdmin):
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
 
-    list_display = ("title", "publishers", "page_count")
-    list_filter = ("publishers", "authors")
-    search_fields = ("authors", "publishers")
+    list_display = ("title", "publisher", "page_count")
+    list_filter = ("publisher", "authors")
+    search_fields = ("authors", "publisher")
