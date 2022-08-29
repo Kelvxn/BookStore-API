@@ -25,5 +25,5 @@ urlpatterns = [
     path("authors/", AuthorsList.as_view(), name="authors_list"),
     path("authors/<slug:slug>/", AuthorDetail.as_view(), name="author-detail"),
     path("publishers/", PublishersList.as_view(), name="publishers_list"),
-    path("publishers/<int:pk>/", PublisherDetail.as_view(), name="publisher-detail"),
+    path("publishers/<slug:slug>/", PublisherDetail.as_view(), name="publisher-detail"),
 ]

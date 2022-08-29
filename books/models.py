@@ -13,12 +13,12 @@ class Publisher(models.Model):
     name = models.CharField(max_length=50)
     slug = models.SlugField(max_length=50, unique=True)
     website = models.URLField()
-    email = models.EmailField(("Email Address"), max_length=254, unique=True)
+    email = models.EmailField(("Email Address"))
     address = models.CharField(max_length=100)
     subscribers = models.ManyToManyField(MyUser, related_name="subscribers", blank=True)
 
     class Meta:
-        ordering = ("name",)
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -37,7 +37,7 @@ class Author(models.Model):
     first_name = models.CharField(("First Name"), max_length=30)
     last_name = models.CharField(("Last Name"), max_length=30)
     slug = models.SlugField(max_length=100)
-    email = models.EmailField(("Email address"), unique=True)
+    email = models.EmailField(("Email address"))
     about = models.TextField(max_length=250)
 
     def __str__(self):
@@ -65,7 +65,7 @@ class Book(models.Model):
         error_messages={"unique": "A book with this title already exists."}
     )
     description = models.TextField()
-    authors = models.ManyToManyField(Author, related_name="authors")
+    authors = models.ManyToManyField(Author, related_name="books_written", blank=True)
     publisher = models.ForeignKey(
         Publisher, related_name="books_published", on_delete=models.CASCADE, null=True, blank=True
     )
@@ -81,7 +81,7 @@ class Book(models.Model):
     page_count = models.PositiveIntegerField(("Number of pages"))
 
     class Meta:
-        ordering = ("-date_published",)
+        ordering = ["-date_published"]
 
     def __str__(self):
         return self.title

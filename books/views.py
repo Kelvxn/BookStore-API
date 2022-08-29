@@ -1,4 +1,5 @@
-from rest_framework import status
+from django.http import Http404
+
 from rest_framework.generics import (
     CreateAPIView,
     GenericAPIView,
@@ -23,9 +24,7 @@ class APIRoot(GenericAPIView):
             {
                 "Books List": reverse("books_list", request=request, format=format),
                 "Authors List": reverse("authors_list", request=request, format=format),
-                "Publishers List": reverse(
-                    "publishers_list", request=request, format=format
-                ),
+                "Publishers List": reverse("publishers_list", request=request, format=format),
             }
         )
 
@@ -45,10 +44,7 @@ class BookDetail(APIView):
         try:
             return Book.objects.get(pk=pk)
         except Book.DoesNotExist:
-            return Response(
-                {"Not found": "The request book doesn't exist"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            raise Http404            
 
     def get(self, request, pk, format=None):
         book = self.get_object(pk)
@@ -77,7 +73,7 @@ class BookUpdate(RetrieveUpdateAPIView, GenericAPIView):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = (AllowAny,)
 
 
 class BookDelete(RetrieveDestroyAPIView, GenericAPIView):
