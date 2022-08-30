@@ -14,8 +14,8 @@ class PublisherAdmin(admin.ModelAdmin):
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
 
-    list_display = ('first_name', 'last_name', 'email')
-    ordering = ('first_name',)
+    list_display = ("first_name", "last_name", "email")
+    ordering = ("first_name",)
     prepopulated_fields = {"slug": ("first_name", "last_name")}
 
 

@@ -1,4 +1,5 @@
 from django.http import Http404
+from django.utils.text import slugify
 
 from rest_framework.generics import (
     CreateAPIView,
@@ -44,7 +45,7 @@ class BookDetail(APIView):
         try:
             return Book.objects.get(pk=pk)
         except Book.DoesNotExist:
-            raise Http404            
+            raise Http404
 
     def get(self, request, pk, format=None):
         book = self.get_object(pk)
@@ -53,11 +54,11 @@ class BookDetail(APIView):
 
     def post(self, request, pk, format=None):
         book = self.get_object(pk)
-        if request.user not in book.bookmark.all():  
-            book.bookmark.add(request.user) 
+        if request.user not in book.bookmark.all():
+            book.bookmark.add(request.user)
             return Response({"Success": "This book has been added to your bookmark"})
         else:
-            book.bookmark.remove(request.user) 
+            book.bookmark.remove(request.user)
             return Response(
                 {"Success": "This book has been removed from your bookmark"}
             )
@@ -69,14 +70,14 @@ class BookCreate(CreateAPIView):
     permission_classes = [IsAdminUser]
 
 
-class BookUpdate(RetrieveUpdateAPIView, GenericAPIView):
+class BookUpdate(RetrieveUpdateAPIView):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
     permission_classes = [IsAdminUser]
 
 
-class BookDelete(RetrieveDestroyAPIView, GenericAPIView):
+class BookDelete(RetrieveDestroyAPIView):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
@@ -95,7 +96,7 @@ class AuthorDetail(RetrieveAPIView):
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
     lookup_field = "slug"
-    
+
 
 class AuthorCreate(CreateAPIView):
 
@@ -103,15 +104,21 @@ class AuthorCreate(CreateAPIView):
     permission_classes = [IsAdminUser]
 
 
-class AuthorUpdate(RetrieveUpdateAPIView, GenericAPIView):
+class AuthorUpdate(RetrieveUpdateAPIView):
 
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
     permission_classes = [IsAdminUser]
     lookup_field = "slug"
 
+    def perform_update(self, serializer):
+        first_name = serializer.validated_data["first_name"]
+        last_name = serializer.validated_data["last_name"]
+        serializer.validated_data["slug"] = slugify(f"{first_name} {last_name}")
+        return super().perform_update(serializer)
 
-class AuthorDelete(RetrieveDestroyAPIView, GenericAPIView):
+
+class AuthorDelete(RetrieveDestroyAPIView):
 
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
@@ -145,8 +152,13 @@ class PublisherUpdate(RetrieveUpdateAPIView, GenericAPIView):
     permission_classes = [IsAdminUser]
     lookup_field = "slug"
 
+    def perform_update(self, serializer):
+        name = serializer.validated_data["name"]
+        serializer.validated_data["slug"] = slugify(name)
+        return super().perform_update(serializer)
 
-class PublisherDelete(RetrieveDestroyAPIView, GenericAPIView):
+
+class PublisherDelete(RetrieveDestroyAPIView):
 
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer

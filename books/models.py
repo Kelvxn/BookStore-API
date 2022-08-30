@@ -10,11 +10,11 @@ from accounts.models import MyUser
 # Create your models here.
 class Publisher(models.Model):
 
-    name = models.CharField(max_length=50,)
-    slug = models.SlugField(max_length=50)
+    name = models.CharField(max_length=50)
+    slug = models.SlugField()
     website = models.URLField()
-    email = models.EmailField(("Email Address"), )
-    address = models.CharField(max_length=100)
+    email = models.EmailField(("Email Address"))
+    address = models.CharField(max_length=100, blank=True)
     subscribers = models.ManyToManyField(MyUser, related_name="subscribers", blank=True)
 
     class Meta:
@@ -38,7 +38,7 @@ class Author(models.Model):
     last_name = models.CharField(("Last Name"), max_length=30)
     slug = models.SlugField(max_length=100, unique=True)
     email = models.EmailField(("Email address"))
-    about = models.TextField(max_length=250)
+    about = models.TextField(max_length=250, blank=True)
 
     def __str__(self):
         return f"{self.first_name}"
@@ -62,12 +62,15 @@ class Book(models.Model):
     title = models.CharField(
         max_length=50,
         unique=True,
-        error_messages={"unique": "A book with this title already exists."}
+        error_messages={"unique": "A book with this title already exists."},
     )
     summary = models.TextField()
     authors = models.ManyToManyField(Author, related_name="books_written", blank=True)
     publisher = models.ForeignKey(
-        Publisher, related_name="books_published", on_delete=models.CASCADE, null=True, blank=True
+        Publisher,
+        related_name="books_published",
+        on_delete=models.CASCADE,
+        null=True,
     )
     date_published = models.DateField()
     isbn = models.CharField(
@@ -78,6 +81,9 @@ class Book(models.Model):
             "unique": "A book with this ISBN already exists",
         }
     )
+    # qty = models.PositiveIntegerField(("Quantity"))
+    # price = models.DecimalField(decimal_places=3, max_digits=3)
+    # purchase_link = models.URLField()
     page_count = models.PositiveIntegerField(("Number of pages"))
 
     class Meta:
