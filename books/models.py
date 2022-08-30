@@ -10,10 +10,10 @@ from accounts.models import MyUser
 # Create your models here.
 class Publisher(models.Model):
 
-    name = models.CharField(max_length=50)
-    slug = models.SlugField(max_length=50, unique=True)
+    name = models.CharField(max_length=50,)
+    slug = models.SlugField(max_length=50)
     website = models.URLField()
-    email = models.EmailField(("Email Address"))
+    email = models.EmailField(("Email Address"), )
     address = models.CharField(max_length=100)
     subscribers = models.ManyToManyField(MyUser, related_name="subscribers", blank=True)
 
@@ -36,7 +36,7 @@ class Author(models.Model):
 
     first_name = models.CharField(("First Name"), max_length=30)
     last_name = models.CharField(("Last Name"), max_length=30)
-    slug = models.SlugField(max_length=100)
+    slug = models.SlugField(max_length=100, unique=True)
     email = models.EmailField(("Email address"))
     about = models.TextField(max_length=250)
 
@@ -64,7 +64,7 @@ class Book(models.Model):
         unique=True,
         error_messages={"unique": "A book with this title already exists."}
     )
-    description = models.TextField()
+    summary = models.TextField()
     authors = models.ManyToManyField(Author, related_name="books_written", blank=True)
     publisher = models.ForeignKey(
         Publisher, related_name="books_published", on_delete=models.CASCADE, null=True, blank=True

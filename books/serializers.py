@@ -1,5 +1,7 @@
 import json
 
+from django.utils.text import slugify
+
 from rest_framework import serializers
 
 from .models import Author, Book, Publisher
@@ -17,10 +19,20 @@ class PublisherSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Publisher
-        fields = ["url", "name", "email", "website", "subscribers", "books_published"]
+        fields = ["url", "name", "slug","email", "website", "subscribers", "books_published"]
         extra_kwargs = {
-            "url": {"view_name": "publisher-detail", "lookup_field": "slug"}
+            "url": {"view_name": "publisher-detail", "lookup_field": "slug"},
+            "slug": {"required": False, "allow_null": True}
         }
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get("name", instance.name)
+        instance.slug = slugify(instance.name)
+        instance.email = validated_data.get("email", instance.email)
+        instance.website = validated_data.get("website", instance.website)
+        instance.save()
+        return instance
+
 
 class AuthorSerializer(serializers.HyperlinkedModelSerializer):
 
@@ -33,6 +45,7 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
         model = Author
         fields = [
             "url",
+            "slug",
             "full_name",
             "first_name",
             "last_name",
@@ -41,7 +54,16 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
         ]
         extra_kwargs = {
             "url": {"view_name": "author-detail", "lookup_field": "slug"},
+            "slug": {"required": False}
         }
+
+    def update(self, instance, validated_data):
+        instance.first_name = validated_data.get("first_name", instance.first_name)
+        instance.last_name = validated_data.get("last_name", instance.last_name)
+        instance.slug = slugify(instance.name)
+        instance.email = validated_data.get("email", instance.email)
+        instance.save()
+        return instance
 
 
 class BookSerializer(serializers.HyperlinkedModelSerializer):
@@ -55,7 +77,7 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             "url",
             "title",
-            "description",
+            "summary",
             "authors",
             "publisher",
             "isbn",
@@ -71,27 +93,36 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
         return count
 
     def create(self, validated_data):
-        authors = validated_data.pop("authors")
-        authors = json.loads(json.dumps(authors))
+        authors_data = validated_data.pop("authors")
+        authors = json.loads(json.dumps(authors_data))
         author_objs = []
         a = None 
         for author in authors:
             fn = ln = email = ""
             for i in author.values():
                 fn, ln, email = author.values()
-                a = Author.objects.filter(first_name=fn, last_name=ln, email=email).exists()
-                if not a:
-                    a = Author.objects.create(first_name=fn, last_name=ln, email=email)
-                else:
+                a = Author.objects.filter(first_name=fn, last_name=ln, email=email)
+                if a.exists():
                     a = Author.objects.get(first_name=fn, last_name=ln, email=email)
+                else:
+                    a = Author.objects.create(first_name=fn, last_name=ln, email=email)
             author_objs.append(a)
         publisher = validated_data.pop("publisher")
-        p = Publisher.objects.filter(**publisher).exists()
-        if not p:
-            p = Publisher.objects.create(**publisher)
-        else:
+        p = Publisher.objects.filter(**publisher)
+        if p.exists():
             p = Publisher.objects.get(**publisher)
+        else:
+            p = Publisher.objects.create(**publisher)
         book = Book.objects.create(publisher=p, **validated_data)
-        for i in author_objs:
-            book.authors.add(i)
+        for obj in author_objs:
+            book.authors.add(obj)
         return book
+
+    def update(self, instance, validated_data):
+        instance.title = validated_data.get("title", instance.title)
+        instance.summary = validated_data.get("summary", instance.title)
+        instance.isbn = validated_data.get("isbn", instance.isbn)
+        instance.page_count = validated_data.get("page_count", instance.page_count)
+        instance.date_published = validated_data.get("date_published", instance.date_published)
+        instance.save()
+        return instance

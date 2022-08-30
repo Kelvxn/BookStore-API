@@ -33,12 +33,12 @@ class BooksList(ListAPIView):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny]
 
 
 class BookDetail(APIView):
 
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_object(self, pk):
         try:
@@ -53,11 +53,11 @@ class BookDetail(APIView):
 
     def post(self, request, pk, format=None):
         book = self.get_object(pk)
-        if request.user not in book.bookmark.all():  # type: ignore
-            book.bookmark.add(request.user) # type: ignore
+        if request.user not in book.bookmark.all():  
+            book.bookmark.add(request.user) 
             return Response({"Success": "This book has been added to your bookmark"})
         else:
-            book.bookmark.remove(request.user) # type: ignore
+            book.bookmark.remove(request.user) 
             return Response(
                 {"Success": "This book has been removed from your bookmark"}
             )
@@ -66,33 +66,56 @@ class BookDetail(APIView):
 class BookCreate(CreateAPIView):
 
     serializer_class = BookSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [IsAdminUser]
 
 
 class BookUpdate(RetrieveUpdateAPIView, GenericAPIView):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [IsAdminUser]
 
 
 class BookDelete(RetrieveDestroyAPIView, GenericAPIView):
 
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = [IsAdminUser]
 
 
 class AuthorsList(ListAPIView):
 
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    permission_classes = [AllowAny]
 
 
 class AuthorDetail(RetrieveAPIView):
 
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    lookup_field = "slug"
+    
+
+class AuthorCreate(CreateAPIView):
+
+    serializer_class = AuthorSerializer
+    permission_classes = [IsAdminUser]
+
+
+class AuthorUpdate(RetrieveUpdateAPIView, GenericAPIView):
+
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = "slug"
+
+
+class AuthorDelete(RetrieveDestroyAPIView, GenericAPIView):
+
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    permission_classes = [IsAdminUser]
     lookup_field = "slug"
 
 
@@ -112,4 +135,20 @@ class PublisherDetail(RetrieveAPIView):
 class PublisherCreate(CreateAPIView):
 
     serializer_class = PublisherSerializer
-    permission_classes = (IsAdminUser,)
+    permission_classes = [IsAdminUser]
+
+
+class PublisherUpdate(RetrieveUpdateAPIView, GenericAPIView):
+
+    queryset = Publisher.objects.all()
+    serializer_class = PublisherSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = "slug"
+
+
+class PublisherDelete(RetrieveDestroyAPIView, GenericAPIView):
+
+    queryset = Publisher.objects.all()
+    serializer_class = PublisherSerializer
+    permission_classes = [IsAdminUser]
+    lookup_field = "slug"
