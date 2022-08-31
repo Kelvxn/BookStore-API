@@ -15,7 +15,8 @@ class Publisher(models.Model):
     website = models.URLField()
     email = models.EmailField(("Email Address"))
     address = models.CharField(max_length=100, blank=True)
-    subscribers = models.ManyToManyField(MyUser, related_name="subscribers", blank=True)
+    subscribers = models.ManyToManyField(MyUser, related_name="subscribed_to", blank=True)
+    # TODO: Use celery to send emails to subscribers when a publisher releases a book.
 
     class Meta:
         ordering = ["name"]

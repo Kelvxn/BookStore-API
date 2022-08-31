@@ -7,21 +7,21 @@ from .models import Author, Book, Publisher
 @admin.register(Publisher)
 class PublisherAdmin(admin.ModelAdmin):
 
-    list_display = ("name", "email", "website")
-    prepopulated_fields = {"slug": ("name",)}
+    list_display = ["name", "email", "website"]
+    prepopulated_fields = {"slug": ["name"]}
 
 
 @admin.register(Author)
 class AuthorAdmin(admin.ModelAdmin):
 
-    list_display = ("first_name", "last_name", "email")
-    ordering = ("first_name",)
-    prepopulated_fields = {"slug": ("first_name", "last_name")}
+    list_display = ["first_name", "last_name", "email"]
+    ordering = ["first_name"]
+    prepopulated_fields = {"slug": ["first_name", "last_name"]}
 
 
 @admin.register(Book)
 class BookAdmin(admin.ModelAdmin):
 
-    list_display = ("title", "publisher", "page_count")
-    list_filter = ("publisher", "authors")
-    search_fields = ("authors", "publisher")
+    list_display = ["title", "publisher", "page_count"]
+    list_filter = ["publisher", "authors"]
+    search_fields = ["authors", "publisher"]

@@ -132,12 +132,23 @@ class PublishersList(ListAPIView):
     serializer_class = PublisherSerializer
 
 
-class PublisherDetail(RetrieveAPIView):
+class PublisherDetail(RetrieveAPIView, GenericAPIView):
 
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     lookup_field = "slug"
 
+    def post(self, request, *args, **kwargs):
+        publisher = self.get_object()
+        if request.user not in publisher.subscribers.all():
+            publisher.subscribers.add(request.user)
+            return Response({"Success": f"You are now subscribed to {publisher}."})
+        else:
+            publisher.subscribers.remove(request.user)
+            return Response(
+                {"Success": f"You have unsubscribed from {publisher}."}
+            )
 
 class PublisherCreate(CreateAPIView):
 
