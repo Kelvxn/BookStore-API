@@ -66,12 +66,11 @@ class Book(models.Model):
         error_messages={"unique": "A book with this title already exists."},
     )
     summary = models.TextField()
-    authors = models.ManyToManyField(Author, related_name="books_written", blank=True)
+    authors = models.ManyToManyField(Author, related_name="books_written")
     publisher = models.ForeignKey(
         Publisher,
         related_name="books_published",
         on_delete=models.CASCADE,
-        null=True,
     )
     date_published = models.DateField()
     isbn = models.CharField(
@@ -84,8 +83,8 @@ class Book(models.Model):
     )
     page_count = models.PositiveIntegerField(("Number of pages"))
     quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(decimal_places=2, max_digits=5, default=49.99)
-    purchase_link = models.URLField(default="https://amazon.com")
+    price = models.DecimalField(decimal_places=2, max_digits=5)
+    purchase_link = models.URLField()
 
     class Meta:
         ordering = ["-date_published"]
