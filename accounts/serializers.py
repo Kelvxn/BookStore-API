@@ -10,6 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name="user-detail", lookup_field="slug"
     )
+    subscribed_to = serializers.StringRelatedField(read_only=True, many=True)
 
     class Meta:
         model = User
@@ -20,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "bookmark",
-            "subscribed_to",
+            "subscribed_to"
         ]
         extra_kwargs = {
             "bookmark": {"read_only": True}, "subscribed_to": {"required": False}
@@ -42,7 +43,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "password",
-            "password2",
+            "password2"
         ]
 
     def validate_email(self, data):
