@@ -22,7 +22,9 @@ class UserSerializer(serializers.ModelSerializer):
             "bookmark",
             "subscribed_to",
         ]
-        extra_kwargs = {"bookmark": {"read_only": True}}
+        extra_kwargs = {
+            "bookmark": {"read_only": True}, "subscribed_to": {"required": False}
+        }
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):

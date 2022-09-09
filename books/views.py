@@ -149,6 +149,7 @@ class PublisherDetail(RetrieveAPIView):
                 {"Success": f"You have unsubscribed from {publisher}."}
             )
 
+
 class PublisherCreate(CreateAPIView):
 
     serializer_class = PublisherSerializer
