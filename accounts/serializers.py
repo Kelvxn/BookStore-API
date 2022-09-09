@@ -28,7 +28,9 @@ class UserSerializer(serializers.ModelSerializer):
 class UserRegisterSerializer(serializers.ModelSerializer):
 
     password = serializers.CharField(write_only=True, validators=[validate_password])
-    password2 = serializers.CharField(write_only=True, validators=[validate_password])
+    password2 = serializers.CharField(
+        write_only=True, validators=[validate_password], label="Confirm Password"
+    )
 
     class Meta:
         model = User

@@ -3,7 +3,6 @@ from django.utils.text import slugify
 
 from rest_framework.generics import (
     CreateAPIView,
-    GenericAPIView,
     ListAPIView,
     RetrieveAPIView,
     RetrieveDestroyAPIView,
@@ -19,7 +18,7 @@ from .serializers import AuthorSerializer, BookSerializer, PublisherSerializer
 
 
 # Create your views here.
-class APIRoot(GenericAPIView):
+class APIRoot(APIView):
     def get(self, request, format=None):
         return Response(
             {
@@ -132,7 +131,7 @@ class PublishersList(ListAPIView):
     serializer_class = PublisherSerializer
 
 
-class PublisherDetail(RetrieveAPIView, GenericAPIView):
+class PublisherDetail(RetrieveAPIView):
 
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer
@@ -156,7 +155,7 @@ class PublisherCreate(CreateAPIView):
     permission_classes = [IsAdminUser]
 
 
-class PublisherUpdate(RetrieveUpdateAPIView, GenericAPIView):
+class PublisherUpdate(RetrieveUpdateAPIView):
 
     queryset = Publisher.objects.all()
     serializer_class = PublisherSerializer

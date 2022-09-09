@@ -10,7 +10,7 @@ from accounts.models import MyUser
 # Create your models here.
 class Publisher(models.Model):
 
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, unique=True)
     slug = models.SlugField()
     website = models.URLField()
     email = models.EmailField(("Email Address"))
@@ -39,10 +39,10 @@ class Author(models.Model):
     last_name = models.CharField(("Last Name"), max_length=30)
     slug = models.SlugField(max_length=100, unique=True)
     email = models.EmailField(("Email address"))
-    about = models.TextField(max_length=250, blank=True)
 
     def __str__(self):
-        return f"{self.first_name}"
+        full_name = self.get_full_name()
+        return full_name
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -82,10 +82,10 @@ class Book(models.Model):
             "unique": "A book with this ISBN already exists",
         }
     )
-    # qty = models.PositiveIntegerField(("Quantity"))
-    # price = models.DecimalField(decimal_places=3, max_digits=3)
-    # purchase_link = models.URLField()
     page_count = models.PositiveIntegerField(("Number of pages"))
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(decimal_places=2, max_digits=5, default=49.99)
+    purchase_link = models.URLField(default="https://amazon.com")
 
     class Meta:
         ordering = ["-date_published"]

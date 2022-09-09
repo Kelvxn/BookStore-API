@@ -1,4 +1,5 @@
 from django.utils.text import slugify
+
 from rest_framework.generics import (
     CreateAPIView,
     GenericAPIView,
@@ -6,11 +7,11 @@ from rest_framework.generics import (
     RetrieveDestroyAPIView,
     RetrieveUpdateAPIView,
 )
-from rest_framework.permissions import AllowAny, IsAdminUser
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
-from .models import MyUser
+from .models import MyUser as User
 from .permissions import OnlyUserOrAdmin
 from .serializers import UserRegisterSerializer, UserSerializer
 
@@ -27,19 +28,19 @@ class UserRegister(CreateAPIView):
 
     permission_classes = [AllowAny]
     serializer_class = UserRegisterSerializer
-
+    
 
 class UsersList(ListAPIView):
 
-    queryset = MyUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
 
 
 class UserDetail(RetrieveUpdateAPIView):
 
     permission_classes = [OnlyUserOrAdmin]
-    queryset = MyUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = "slug"
 
@@ -53,6 +54,6 @@ class UserDetail(RetrieveUpdateAPIView):
 class UserDelete(RetrieveDestroyAPIView):
 
     permission_classes = [OnlyUserOrAdmin]
-    queryset = MyUser.objects.all()
+    queryset = User.objects.all()
     serializer_class = UserSerializer
     lookup_field = "slug"

@@ -1,5 +1,3 @@
-import json
-
 from rest_framework import serializers
 
 from .models import Author, Book, Publisher
@@ -47,9 +45,9 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
 
 class BookSerializer(serializers.HyperlinkedModelSerializer):
 
-    authors = AuthorSerializer(many=True, required=False)
+    authors = serializers.StringRelatedField(many=True, read_only=True)
     bookmarked_by = serializers.SerializerMethodField()
-    publisher = PublisherSerializer()
+    publisher = serializers.StringRelatedField(read_only=True)
 
     class Meta:
         model = Book
@@ -61,6 +59,8 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             "publisher",
             "isbn",
             "page_count",
+            "price",
+            "purchase_link",
             "date_published",
             "bookmarked_by",
         ]
@@ -72,23 +72,7 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
         return count
 
     def create(self, validated_data):
-        authors_data = validated_data.pop("authors")
-        authors = json.loads(json.dumps(authors_data))
-        author_objs = []
-        for author in authors:
-            fn = ln = email = ""
-            a = None
-            for i in author.values():
-                fn, ln, email = author.values()
-                a, created = Author.objects.get_or_create(
-                    first_name=fn, last_name=ln, email=email
-                )
-            author_objs.append(a)
-        publisher = validated_data.pop("publisher")
-        p, created = Publisher.objects.get_or_create(**publisher)
-        book = Book.objects.create(publisher=p, **validated_data)
-        for obj in author_objs:
-            book.authors.add(obj)
+        book = Book.objects.create(**validated_data)
         return book
 
     def update(self, instance, validated_data):
