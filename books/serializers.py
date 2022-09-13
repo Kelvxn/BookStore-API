@@ -17,7 +17,7 @@ class PublisherSerializer(serializers.HyperlinkedModelSerializer):
         model = Publisher
         fields = ["url", "name", "email", "website", "subscribers", "books_published"]
         extra_kwargs = {
-            "url": {"view_name": "publisher-detail", "lookup_field": "slug"},
+            "url": { "lookup_field": "slug"},
         }
 
 
@@ -39,14 +39,14 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
             "books_written",
         ]
         extra_kwargs = {
-            "url": {"view_name": "author-detail", "lookup_field": "slug"},
+            "url": {"lookup_field": "slug"},
         }
 
 
 class BookSerializer(serializers.HyperlinkedModelSerializer):
 
     authors = serializers.StringRelatedField(many=True, read_only=True)
-    bookmarked_by = serializers.SerializerMethodField()
+    bookmarks = serializers.SerializerMethodField()
     publisher = serializers.StringRelatedField(read_only=True)
 
     class Meta:
@@ -62,10 +62,10 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
             "price",
             "purchase_link",
             "date_published",
-            "bookmarked_by",
+            "bookmarks"
         ]
 
-    def get_bookmarked_by(self, obj):
+    def get_bookmarks(self, obj):
         count = 0
         for users in obj.bookmark.all():
             count += 1
@@ -74,12 +74,3 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
     def create(self, validated_data):
         book = Book.objects.create(**validated_data)
         return book
-
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get("title", instance.title)
-        instance.summary = validated_data.get("summary", instance.summary)
-        instance.date_published = validated_data.get("date_published", instance.date_published)
-        instance.isbn = validated_data.get("isbn", instance.isbn)
-        instance.page_count = validated_data.get("page_count", instance.page_count)
-        instance.save()
-        return instance

@@ -7,15 +7,12 @@ from .models import MyUser as User
 
 class UserSerializer(serializers.ModelSerializer):
 
-    url = serializers.HyperlinkedIdentityField(
-        view_name="user-detail", lookup_field="slug"
-    )
-    subscribed_to = serializers.StringRelatedField(read_only=True, many=True)
+    subscribed_to = serializers.StringRelatedField(many=True)
+    bookmark = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = User
         fields = [
-            "url",
             "username",
             "first_name",
             "last_name",
@@ -24,7 +21,8 @@ class UserSerializer(serializers.ModelSerializer):
             "subscribed_to"
         ]
         extra_kwargs = {
-            "bookmark": {"read_only": True}, "subscribed_to": {"required": False}
+            "bookmark": {"read_only": True},
+            "subscribed_to": {"required": False, "read_only": True}
         }
 
 
