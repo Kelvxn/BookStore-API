@@ -16,34 +16,36 @@ from .serializers import AuthorSerializer, BookSerializer, PublisherSerializer
 # Create your views here.
 class APIRoot(APIView):
 
+    permission_classes = [AllowAny]
+    
     def get(self, request, format=None):
         return Response(
             {
                 "Books List": reverse("book-list", request=request, format=format),
                 "Authors List": reverse("author-list", request=request, format=format),
-                "Publishers List": reverse(
-                    "publisher-list", request=request, format=format
-                ),
+                "Publishers List": reverse("publisher-list", request=request, format=format)
             }
         )
 
 
 class BookViewSet(ModelViewSet):
 
-    authentication_classes = [BasicAuthentication]
+    authentication_classes = [BasicAuthentication, TokenAuthentication]
     lookup_field = "pk"
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [AllowAny]
 
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             permission_classes = [AllowAny]
+        elif self.action == "add_to_bookmark":
+            permission_classes = [IsAuthenticatedOrReadOnly]
         else:
             permission_classes = [IsAdminUser]
         return [permissions() for permissions in permission_classes]
 
-    @action(methods=["post"], detail=True, url_path="bookmark", permission_classes=[IsAuthenticatedOrReadOnly])
+    @action(methods=["post"], detail=True, url_path="bookmark")
     def add_to_bookmark(self, request, pk=None):
         book = self.get_object()
         if request.user not in book.bookmark.all():
@@ -62,7 +64,7 @@ class BookViewSet(ModelViewSet):
 
 class AuthorViewSet(ModelViewSet):
 
-    authentication_classes = [BasicAuthentication, TokenAuthentication]
+    authentication_classes = [BasicAuthentication]
     lookup_field = "slug"
     queryset = Author.objects.all()
     permission_classes = [IsAdminUser]
@@ -91,8 +93,11 @@ class PublisherViewSet(ModelViewSet):
     serializer_class = PublisherSerializer
 
     def get_permissions(self):
+        print(self.action, '-', self.request.user)
         if self.action in ["list", "retrieve"]:
             permission_classes = [AllowAny]
+        elif self.action == "subscribe_to_publisher":
+            permission_classes = [IsAuthenticatedOrReadOnly]
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
@@ -102,7 +107,7 @@ class PublisherViewSet(ModelViewSet):
         serializer.validated_data["slug"] = slugify(name)
         return super().perform_update(serializer)
 
-    @action(methods=["post"], detail=True, url_path="subscribe", permission_classes=[IsAuthenticatedOrReadOnly])
+    @action(methods=["post"], detail=True, url_path="subscribe")
     def subscribe_to_publisher(self, request, slug=None):
         publisher = self.get_object()
         if request.user not in publisher.subscribers.all():

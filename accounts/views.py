@@ -12,19 +12,22 @@ from .serializers import UserRegisterSerializer, UserSerializer
 # Create your views here.
 class UserViewset(ModelViewSet):
 
-    authentication_classes = [TokenAuthentication, BasicAuthentication]
+    authentication_classes = [BasicAuthentication, TokenAuthentication]
     lookup_field = "slug"
     permission_classes = [IsAdminUser, OnlyUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
     def get_permissions(self):
+        print(self.request.user, '-', self.action)
         if self.action in ["update", "partial_update"]:
             permission_classes = [OnlyUser]
-        elif self.action == "destroy":
-            permission_classes = [IsAdminUser|OnlyUser]
-        else:
+        elif self.action in ["create", "list", "retrieve"]:
             permission_classes = [AllowAny]
+        elif self.action == "destroy":
+            permission_classes = [IsAdminUser or OnlyUser]
+        else:
+            permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
 
     def get_serializer_class(self):

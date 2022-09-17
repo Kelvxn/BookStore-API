@@ -57,7 +57,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         pwd2 = attrs["password2"]
         if pwd != pwd2 and pwd2:
             raise serializers.ValidationError({"Error": "Passwords don't match"})
-        return super().validate(attrs)
+        return attrs
 
     def create(self, validated_data):
         validated_data.pop("password2")

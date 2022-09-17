@@ -6,18 +6,16 @@ from .models import Author, Book, Publisher
 # Serializers
 class PublisherSerializer(serializers.HyperlinkedModelSerializer):
 
-    books_published = serializers.HyperlinkedRelatedField(
-        view_name="book-detail", many=True, read_only=True, required=False
-    )
-    subscribers = serializers.StringRelatedField(
-        read_only=True, many=True, required=False
-    )
+    books_published = serializers.StringRelatedField(many=True, read_only=True)
+    subscribers = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Publisher
         fields = ["url", "name", "email", "website", "subscribers", "books_published"]
         extra_kwargs = {
             "url": { "lookup_field": "slug"},
+            "books_published": { "required": False},
+            "subscribers": { "required": False},
         }
 
 
@@ -25,7 +23,7 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
 
     full_name = serializers.ReadOnlyField(source="get_full_name")
     books_written = serializers.HyperlinkedRelatedField(
-        view_name="book-detail", required=False, many=True, read_only=True
+        view_name="book-detail", many=True, read_only=True
     )
 
     class Meta:
@@ -40,6 +38,7 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
         ]
         extra_kwargs = {
             "url": {"lookup_field": "slug"},
+            "books_writtern": {"required": False},
         }
 
 
@@ -47,7 +46,7 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
 
     authors = serializers.StringRelatedField(many=True, read_only=True)
     bookmarks = serializers.SerializerMethodField()
-    publisher = serializers.StringRelatedField(read_only=True)
+    publisher = serializers.StringRelatedField()
 
     class Meta:
         model = Book
@@ -67,10 +66,15 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_bookmarks(self, obj):
         count = 0
-        for users in obj.bookmark.all():
+        for i in obj.bookmark.all():
             count += 1
         return count
 
+    def to_internal_value(self, data):
+        return data
+
     def create(self, validated_data):
-        book = Book.objects.create(**validated_data)
+        publisher = validated_data.pop("publisher")
+        p, created = Publisher.objects.get_or_create(name=publisher)
+        book = Book.objects.create(publisher=p, **validated_data)
         return book
