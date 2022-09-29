@@ -19,7 +19,6 @@ class UserViewset(ModelViewSet):
     serializer_class = UserSerializer
 
     def get_permissions(self):
-        print(self.request.user, '-', self.action)
         if self.action in ["update", "partial_update"]:
             permission_classes = [OnlyUser]
         elif self.action in ["create", "list", "retrieve"]:
@@ -37,7 +36,8 @@ class UserViewset(ModelViewSet):
         return super().get_serializer_class()
 
     def perform_update(self, serializer):
-        first_name = serializer.validated_data["first_name"]
-        last_name = serializer.validated_data["last_name"]
-        serializer.validated_data["slug"] = slugify(f"{first_name} {last_name}")
+        data = serializer.validated_data
+        first_name = data["first_name"]
+        last_name = data["last_name"]
+        data["slug"] = slugify(f"{first_name} {last_name}")
         return super().perform_update(serializer)

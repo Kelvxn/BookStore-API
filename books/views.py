@@ -78,9 +78,10 @@ class AuthorViewSet(ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def perform_update(self, serializer):
-        first_name = serializer.validated_data["first_name"]
-        last_name = serializer.validated_data["last_name"]
-        serializer.validated_data["slug"] = slugify(f"{first_name} {last_name}")
+        data = serializer.data
+        first_name = data["first_name"]
+        last_name = data["last_name"]
+        data["slug"] = slugify(f"{first_name} {last_name}")
         return super().perform_update(serializer)
 
 
@@ -93,7 +94,6 @@ class PublisherViewSet(ModelViewSet):
     serializer_class = PublisherSerializer
 
     def get_permissions(self):
-        print(self.action, '-', self.request.user)
         if self.action in ["list", "retrieve"]:
             permission_classes = [AllowAny]
         elif self.action == "subscribe_to_publisher":
@@ -103,8 +103,9 @@ class PublisherViewSet(ModelViewSet):
         return [permission() for permission in permission_classes]
 
     def perform_update(self, serializer):
-        name = serializer.validated_data["name"]
-        serializer.validated_data["slug"] = slugify(name)
+        data = serializer.validated_data
+        name = data["name"]
+        data["slug"] = slugify(name)
         return super().perform_update(serializer)
 
     @action(methods=["post"], detail=True, url_path="subscribe")
