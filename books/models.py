@@ -11,11 +11,12 @@ from accounts.models import MyUser
 class Publisher(models.Model):
 
     name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True)
     website = models.URLField()
     email = models.EmailField(("Email Address"))
     address = models.CharField(max_length=100, blank=True)
     subscribers = models.ManyToManyField(MyUser, related_name="subscribed_to", blank=True)
+
     # TODO: Use celery to send emails to subscribers when a publisher releases a book.
 
     class Meta:

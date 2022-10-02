@@ -1,11 +1,15 @@
 ## Introduction
 A book store API. An API where users can view books they want to buy or add it to thier bookmark for later, view & subscribe to publishers to get notified by email when a publisher publishes a new book and also, view authors to see list of books they've written.
 
+Built with Django Rest framework.
+
+
 ## API Endpoints 
 <b>API Root </b>
 
     api/ - GET
     Get a list of available API endpoints
+
 
 <b>Authentication </b>
 
@@ -14,6 +18,7 @@ A book store API. An API where users can view books they want to buy or add it t
 
     api-auth/ - POST
     Login to user account
+
 
 <b>Books</b>
 
@@ -35,6 +40,7 @@ A book store API. An API where users can view books they want to buy or add it t
     api/books/<uuid:pk>/ - DELETE
     Delete a book object - (Admin users)
 
+
 <b>Authors</b>
 
     api/authors/ - GET
@@ -52,6 +58,7 @@ A book store API. An API where users can view books they want to buy or add it t
     api/authors/<slug:slug>/ - DELETE
     Delete an author object - (Admin users)
 
+
 <b>Publishers</b>
 
     api/publishers/ - GET
@@ -60,16 +67,16 @@ A book store API. An API where users can view books they want to buy or add it t
     api/publishers/ - POST
     Create a publisher object - (Admin users)
 
-    api/publishers/<slug:slug> - GET
+    api/publishers/<slug:slug>/ - GET
     View a single publisher object
 
     api/publishers/<slug:slug>/subscribe/ - POST
     Subscribe to a publisher  - (Authenticated Users)
 
-    api/publishers/<slug:slug> - PUT
+    api/publishers/<slug:slug>/ - PUT
     Update a publisher object - (Admin users)
 
-    api/publishers/<slug:slug> - DELETE
+    api/publishers/<slug:slug>/ - DELETE
     Delete a publisher object - (Admin users)
 
 
