@@ -1,83 +1,114 @@
 ## Introduction
-A book store API. An API where users can view books they want to buy or add it to thier bookmark for later, view & subscribe to publishers to get notified by email when a publisher publishes a new book and also, view authors to see list of books they've written.
+A book store API. An API where users can view books they want to buy or add it to their bookmark for later, view & subscribe to publishers to get notified by email when a publisher publishes a new book and also, view authors to see list of books they've written.
 
-Built with Django Rest framework.
+Built with Django & Django Rest Framework.
 
 
 ## API Endpoints 
-<b>API Root </b>
+### API Root
+Get a list of available API endpoints
+```
+http://localhost:8000/api/ - GET
+```
 
-    api/ - GET
-    Get a list of available API endpoints
+### Authentication
+Register a user
+```
+http://localhost:8000/api/accounts/ - POST
+```
 
+Login to user account
+```
+http://localhost:8000/api-auth/login/ - POST
+```
 
-<b>Authentication </b>
+### Book
+View a list of all books
+```
+http://localhost:8000/api/books/ - GET
+```
 
-    api/accounts/ - POST
-    Register a user
+Create a book object - (Admin users)
+```
+http://localhost:8000/api/books/ - POST
+```
 
-    api-auth/ - POST
-    Login to user account
+View a single book object
+```
+http://localhost:8000/api/books/{id}/ - GET
+```
 
+Add a book object to bookmark - (Authenticated Users)
+```
+http://localhost:8000/api/books/{id}/bookmark/ - POST
+```
 
-<b>Books</b>
+Update a book object - (Admin users)
+```
+http://localhost:8000/api/books/{id}/ - PUT
+```
 
-    api/books/ - GET
-    View a list of all books
+Delete a book object - (Admin users)
+```
+http://localhost:8000/api/books/{id}/ - DELETE
+```
 
-    api/books/ - POST
-    Create a book object - (Admin users)
+### Author
+View a list of all authors and books written
+```
+http://localhost:8000/api/authors/ - GET
+```
 
-    api/books/<uuid:pk>/ - GET
-    View a single book object
+Create an author object - (Admin users)
+```
+http://localhost:8000/api/authors/ - POST
+```
 
-    api/books/<uuid:pk>/bookmark/ - POST
-    Add a book object to bookmark - (Authenticated Users)
+View a single author object
+```
+http://localhost:8000/api/authors/{slug}/ - GET
+```
 
-    api/books/<uuid:pk>/ - PUT
-    Update a book object - (Admin users)
+Update an author object - (Admin users)
+```
+http://localhost:8000/api/authors/{slug}/ - PUT
+```
 
-    api/books/<uuid:pk>/ - DELETE
-    Delete a book object - (Admin users)
+Delete an author object - (Admin users)
+```
+http://localhost:8000/api/authors/{slug}/ - DELETE
+```
 
+### Publisher
+View a list of all publishers and books published.
+```
+http://localhost:8000/api/publishers/ - GET
+```
 
-<b>Authors</b>
+Create a publisher object - (Admin users)
+```
+http://localhost:8000/api/publishers/ - POST
+```
 
-    api/authors/ - GET
-    View a list of all authors and books written
+View a single publisher object
+```
+http://localhost:8000/api/publishers/{slug}/ - GET
+```
 
-    api/authors/ - POST
-    Create an author object - (Admin users)
+Subscribe to a publisher  - (Authenticated Users)
+```
+http://localhost:8000/api/publishers/{slug}/subscribe/ - POST
+```
 
-    api/authors/<slug:slug>/ - GET
-    View a single author object
+Update a publisher object - (Admin users)
+```
+http://localhost:8000/api/publishers/{slug}/ - PUT
+```
 
-    api/authors/<slug:slug>/ - PUT
-    Update an author object - (Admin users)
-
-    api/authors/<slug:slug>/ - DELETE
-    Delete an author object - (Admin users)
-
-
-<b>Publishers</b>
-
-    api/publishers/ - GET
-    View a list of all publishers and books published.
-
-    api/publishers/ - POST
-    Create a publisher object - (Admin users)
-
-    api/publishers/<slug:slug>/ - GET
-    View a single publisher object
-
-    api/publishers/<slug:slug>/subscribe/ - POST
-    Subscribe to a publisher  - (Authenticated Users)
-
-    api/publishers/<slug:slug>/ - PUT
-    Update a publisher object - (Admin users)
-
-    api/publishers/<slug:slug>/ - DELETE
-    Delete a publisher object - (Admin users)
+Delete a publisher object - (Admin users)
+```
+http://localhost:8000/api/publishers/{slug}/ - DELETE
+```
 
 
 ## Cloning the repository 
