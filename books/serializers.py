@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Author, Book, Publisher
+from .models import Author, Book, Publisher, Review
 
 
 # Serializers
@@ -78,3 +78,21 @@ class BookSerializer(serializers.HyperlinkedModelSerializer):
         p, created = Publisher.objects.get_or_create(name=publisher)
         book = Book.objects.create(publisher=p, **validated_data)
         return book
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    user = serializers.StringRelatedField()
+
+    class Meta:
+        model = Review
+        exclude = ["id"]
+
+
+class BookInstanceSerializer(BookSerializer):
+
+    reviews = ReviewSerializer(many=True)
+
+    class Meta:
+        model = Book
+        fields = BookSerializer.Meta.fields + ["reviews"]

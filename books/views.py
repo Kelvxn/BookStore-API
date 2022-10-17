@@ -1,6 +1,4 @@
-from django.utils.text import slugify
-
-from rest_framework import status
+from rest_framework import exceptions, status
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
@@ -9,8 +7,10 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Author, Book, Publisher
-from .serializers import AuthorSerializer, BookSerializer, PublisherSerializer
+from books.utils import validate_review
+
+from .models import Author, Book, Publisher, Review
+from .serializers import AuthorSerializer, BookInstanceSerializer, BookSerializer, PublisherSerializer, ReviewSerializer
 
 
 # Create your views here.
@@ -45,6 +45,11 @@ class BookViewSet(ModelViewSet):
             permission_classes = [IsAdminUser]
         return [permissions() for permissions in permission_classes]
 
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return BookInstanceSerializer
+        return super().get_serializer_class()
+
     @action(methods=["post"], detail=True, url_path="bookmark")
     def add_to_bookmark(self, request, pk=None):
         book = self.get_object()
@@ -60,8 +65,18 @@ class BookViewSet(ModelViewSet):
                 {"Success": f"{book} has been removed from your bookmark."},
                 status=status.HTTP_200_OK,
             )
+    
+    @action(methods=["post"], detail=True, url_path="review")
+    def add_review(self, request, pk=None):
+        book = self.get_object()
+        data = request.data.get("review")
+        cleaned_data = validate_review(data)
+        review = Review.objects.create(book=book, user=request.user, review=cleaned_data)
+        book.reviews.add(review)
+        serializer = BookInstanceSerializer(book, context={"request": request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+ 
 class AuthorViewSet(ModelViewSet):
 
     authentication_classes = [BasicAuthentication]
@@ -76,13 +91,6 @@ class AuthorViewSet(ModelViewSet):
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
-
-    def perform_update(self, serializer):
-        data = serializer.data
-        first_name = data["first_name"]
-        last_name = data["last_name"]
-        data["slug"] = slugify(f"{first_name} {last_name}")
-        return super().perform_update(serializer)
 
 
 class PublisherViewSet(ModelViewSet):
@@ -101,12 +109,6 @@ class PublisherViewSet(ModelViewSet):
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
-
-    def perform_update(self, serializer):
-        data = serializer.validated_data
-        name = data["name"]
-        data["slug"] = slugify(name)
-        return super().perform_update(serializer)
 
     @action(methods=["post"], detail=True, url_path="subscribe")
     def subscribe_to_publisher(self, request, slug=None):

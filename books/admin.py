@@ -8,7 +8,6 @@ from .models import Author, Book, Publisher
 class PublisherAdmin(admin.ModelAdmin):
 
     list_display = ["name", "email", "website"]
-    prepopulated_fields = {"slug": ["name"]}
 
 
 @admin.register(Author)
@@ -16,7 +15,6 @@ class AuthorAdmin(admin.ModelAdmin):
 
     list_display = ["first_name", "last_name", "email"]
     ordering = ["first_name"]
-    prepopulated_fields = {"slug": ["first_name", "last_name"]}
 
 
 @admin.register(Book)

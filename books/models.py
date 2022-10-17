@@ -2,7 +2,8 @@ from uuid import uuid4
 
 from django.db import models
 from django.urls import reverse
-from django.utils.text import slugify
+
+from autoslug import AutoSlugField
 
 from accounts.models import MyUser
 
@@ -11,7 +12,7 @@ from accounts.models import MyUser
 class Publisher(models.Model):
 
     name = models.CharField(max_length=50, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = AutoSlugField(always_update=True, populate_from="name", unique=True)
     website = models.URLField()
     email = models.EmailField(("Email Address"))
     address = models.CharField(max_length=100, blank=True)
@@ -25,11 +26,6 @@ class Publisher(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            self.slug = slugify(self.name)
-        return super().save(*args, **kwargs)
-
     def get_absolute_url(self):
         return reverse("publisher-detail", kwargs={"slug": self.slug})
 
@@ -38,18 +34,12 @@ class Author(models.Model):
 
     first_name = models.CharField(("First Name"), max_length=30)
     last_name = models.CharField(("Last Name"), max_length=30)
-    slug = models.SlugField(max_length=100, unique=True)
+    slug = AutoSlugField(always_update=True, populate_from="get_full_name", unique=True)
     email = models.EmailField(("Email address"))
 
     def __str__(self):
         full_name = self.get_full_name()
         return full_name
-
-    def save(self, *args, **kwargs):
-        if not self.slug:
-            full_name = self.get_full_name()
-            self.slug = slugify(full_name)
-        return super().save(*args, **kwargs)
 
     def get_absolute_url(self):
         return reverse("author-detail", kwargs={"pk": self.pk})
@@ -95,3 +85,11 @@ class Book(models.Model):
 
     def get_absolute_url(self):
         return reverse("book-detail", kwargs={"pk": self.id})
+
+
+class Review(models.Model):
+
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name="reviews")
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    review = models.TextField(help_text="Your review of this book")
+    date_posted = models.DateTimeField(auto_now_add=True)

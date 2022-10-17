@@ -10,4 +10,3 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ["username", "first_name", "last_name", "email", "slug"]
     search_fields = ["first_name", "last_name"]
     list_per_page = 5
-    # prepopulated_fields = {"slug": ["first_name", "last_name"]}
