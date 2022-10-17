@@ -21,10 +21,11 @@ class PublisherSerializer(serializers.HyperlinkedModelSerializer):
 
 class AuthorSerializer(serializers.HyperlinkedModelSerializer):
 
-    full_name = serializers.ReadOnlyField(source="get_full_name")
     books_written = serializers.HyperlinkedRelatedField(
         view_name="book-detail", many=True, read_only=True
     )
+    full_name = serializers.ReadOnlyField(source="get_full_name")
+    subscribers = serializers.StringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Author
@@ -35,10 +36,12 @@ class AuthorSerializer(serializers.HyperlinkedModelSerializer):
             "last_name",
             "email",
             "books_written",
+            "subscribers",
         ]
         extra_kwargs = {
             "url": {"lookup_field": "slug"},
             "books_writtern": {"required": False},
+            "subscribers": { "required": False},
         }
 
 
@@ -86,7 +89,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        exclude = ["id"]
+        exclude = ["id", "book"]
 
 
 class BookInstanceSerializer(BookSerializer):

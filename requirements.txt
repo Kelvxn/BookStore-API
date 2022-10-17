@@ -1,0 +1,4 @@
+Django==4.0
+django-autoslug==1.9.8
+djangorestframework==3.12.4
+drf-writable-nested==0.7.0

@@ -1,5 +1,3 @@
-from django.utils.text import slugify
-
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.viewsets import ModelViewSet
@@ -31,13 +29,5 @@ class UserViewset(ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "create":
-            serializer = UserRegisterSerializer
-            return serializer
+            return UserRegisterSerializer
         return super().get_serializer_class()
-
-    def perform_update(self, serializer):
-        data = serializer.validated_data
-        first_name = data["first_name"]
-        last_name = data["last_name"]
-        data["slug"] = slugify(f"{first_name} {last_name}")
-        return super().perform_update(serializer)

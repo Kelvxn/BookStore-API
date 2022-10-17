@@ -1,4 +1,4 @@
-from rest_framework import exceptions, status
+from rest_framework import status
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
@@ -7,23 +7,27 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from books.utils import validate_review
-
 from .models import Author, Book, Publisher, Review
-from .serializers import AuthorSerializer, BookInstanceSerializer, BookSerializer, PublisherSerializer, ReviewSerializer
+from .serializers import (
+    AuthorSerializer,
+    BookInstanceSerializer,
+    BookSerializer,
+    PublisherSerializer,
+)
+from .utils import validate_review
 
 
 # Create your views here.
 class APIRoot(APIView):
 
     permission_classes = [AllowAny]
-    
+
     def get(self, request, format=None):
         return Response(
             {
-                "Books List": reverse("book-list", request=request, format=format),
-                "Authors List": reverse("author-list", request=request, format=format),
-                "Publishers List": reverse("publisher-list", request=request, format=format)
+                "Books": reverse("book-list", request=request, format=format),
+                "Authors": reverse("author-list", request=request, format=format),
+                "Publishers": reverse("publisher-list", request=request, format=format),
             }
         )
 
@@ -39,7 +43,7 @@ class BookViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             permission_classes = [AllowAny]
-        elif self.action == "add_to_bookmark":
+        elif self.action in ["add_review", "add_to_bookmark"]:
             permission_classes = [IsAuthenticatedOrReadOnly]
         else:
             permission_classes = [IsAdminUser]
@@ -65,18 +69,20 @@ class BookViewSet(ModelViewSet):
                 {"Success": f"{book} has been removed from your bookmark."},
                 status=status.HTTP_200_OK,
             )
-    
+
     @action(methods=["post"], detail=True, url_path="review")
     def add_review(self, request, pk=None):
         book = self.get_object()
         data = request.data.get("review")
         cleaned_data = validate_review(data)
-        review = Review.objects.create(book=book, user=request.user, review=cleaned_data)
+        review = Review.objects.create(
+            book=book, user=request.user, review=cleaned_data
+        )
         book.reviews.add(review)
         serializer = BookInstanceSerializer(book, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
- 
+
 class AuthorViewSet(ModelViewSet):
 
     authentication_classes = [BasicAuthentication]
@@ -91,6 +97,22 @@ class AuthorViewSet(ModelViewSet):
         else:
             permission_classes = [IsAdminUser]
         return [permission() for permission in permission_classes]
+    
+    @action(methods=["post"], detail=True, url_path="subscribe")
+    def subscribe_to_author(self, request, slug=None):
+        author = self.get_object()
+        if request.user not in author.subscribers.all():
+            author.subscribers.add(request.user)
+            return Response(
+                {"Success": f"You are now subscribed to {author}."},
+                status=status.HTTP_200_OK,
+            )
+        else:
+            author.subscribers.remove(request.user)
+            return Response(
+                {"Success": f"You have unsubscribed from {author}."},
+                status=status.HTTP_200_OK,
+            )
 
 
 class PublisherViewSet(ModelViewSet):
@@ -116,12 +138,12 @@ class PublisherViewSet(ModelViewSet):
         if request.user not in publisher.subscribers.all():
             publisher.subscribers.add(request.user)
             return Response(
-                {"Success": f"You are now subscribed to {publisher}."},
+                {"Success": f"You are now watching {publisher}."},
                 status=status.HTTP_200_OK,
             )
         else:
             publisher.subscribers.remove(request.user)
             return Response(
-                {"Success": f"You have unsubscribed from {publisher}."},
+                {"Success": f"You have no longer watching {publisher}."},
                 status=status.HTTP_200_OK,
             )

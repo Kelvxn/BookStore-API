@@ -7,8 +7,9 @@ from .models import MyUser as User
 
 class UserSerializer(serializers.ModelSerializer):
 
-    subscribed_to = serializers.StringRelatedField(many=True)
     bookmark = serializers.StringRelatedField(many=True)
+    subscribed_to = serializers.StringRelatedField(many=True)
+    watching = serializers.StringRelatedField(many=True)
 
     class Meta:
         model = User
@@ -18,11 +19,13 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "bookmark",
-            "subscribed_to"
+            "subscribed_to",
+            "watching",
         ]
         extra_kwargs = {
             "bookmark": {"read_only": True},
-            "subscribed_to": {"required": False, "read_only": True}
+            "subscribed_to": {"required": False, "read_only": True},
+            "watching": {"required": False, "read_only": True}
         }
 
 
@@ -48,7 +51,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         queryset = User.objects.filter(email__iexact=data)
         if queryset.exists():
             raise serializers.ValidationError(
-                {"Error": "A user with this email address already exists."}
+               "A user with this email address already exists."
             )
         return data
 

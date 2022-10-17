@@ -16,7 +16,7 @@ class Publisher(models.Model):
     website = models.URLField()
     email = models.EmailField(("Email Address"))
     address = models.CharField(max_length=100, blank=True)
-    subscribers = models.ManyToManyField(MyUser, related_name="subscribed_to", blank=True)
+    subscribers = models.ManyToManyField(MyUser, related_name="watching", blank=True)
 
     # TODO: Use celery to send emails to subscribers when a publisher releases a book.
 
@@ -36,6 +36,7 @@ class Author(models.Model):
     last_name = models.CharField(("Last Name"), max_length=30)
     slug = AutoSlugField(always_update=True, populate_from="get_full_name", unique=True)
     email = models.EmailField(("Email address"))
+    subscribers = models.ManyToManyField(MyUser, related_name="subscribed_to", blank=True)
 
     def __str__(self):
         full_name = self.get_full_name()
